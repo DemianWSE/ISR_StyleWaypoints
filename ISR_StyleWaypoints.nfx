@@ -40,7 +40,7 @@ T_BLACK "Graphics by" T_LGRAY " the ISR team (see readme for full credits)" CRLF
 T_BLACK "Coded by" T_LGRAY " DemianWSE" CRLF
 CRLF
 T_BLACK "License: " T_LGRAY "GPLv2")
-    grfurl(ALL, "https://github.com/DemianWSE/JapaneseStationsAddons")
+    grfurl(ALL, "https://github.com/DemianWSE/ISR_StyleWaypoints")
     grfpalette(DOS)
     grfversion(1)
     grfminversion(1)
