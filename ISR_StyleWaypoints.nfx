@@ -33,7 +33,7 @@ textmode_on()
 
 grfinit(GRF_ISRSW,
     grfname(ALL, "ISR Style Waypoints")
-    grfdescription(ALL, T_ORANGE "ISR Style Waypoints" CRLF
+    grfdescription(ALL, T_ORANGE "ISR Style Waypoints 1.0" CRLF
 T_BLACK "A set of waypoints made with ISR graphics" CRLF 
 CRLF
 T_BLACK "Graphics by" T_LGRAY " the ISR team (see readme for full credits)" CRLF
