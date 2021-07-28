@@ -1,4 +1,4 @@
-# ISR_StyleWaypoints
+# ISR Style Waypoints
 
 1 About
 2 License
