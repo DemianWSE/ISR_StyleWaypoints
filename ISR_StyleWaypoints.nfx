@@ -1,29 +1,29 @@
 //----------------------------------------------------------
 //	ISR Style Waypoints
-//	by DemianWSE - 2021
+//	by DemianWSE 2021
 //----------------------------------------------------------
 
-define(GRF_ISRSW, 50 47 06 01)
+// v1.1 31-07-2021 mb
 
-define(AVAILABLE, {cbr(1)})
-define(NOTAVAILABLE, {cbr(0)})
 
-define(ISRSW_0,0)
-define(ISRSW_1,1) 
-define(ISRSW_2,2)
-define(ISRSW_3,3) 
-define(ISRSW_4,4) 
-define(ISRSW_5,5) 
-define(ISRSW_6,6) 
-define(ISRSW_7,7)
-define(ISRSW_8,8)
-define(ISRSW_9,9)  //disabled
-define(ISRSW_10,10)
-define(ISRSW_11,11)
-define(ISRSW_12,12)
-define(ISRSW_13,13)
-define(ISRSW_14,14)
-define(ISRSW_15,15)
+define(GRF_ISRSW, 50 47 06 00)
+
+define(ISRSW_0,0) // empty
+define(ISRSW_1,1) // with road
+define(ISRSW_2,2) // mineral silo ext
+define(ISRSW_3,3) // overpass ext
+define(ISRSW_4,4) // office 1
+define(ISRSW_5,5) // office 2
+define(ISRSW_6,6) // office 3
+define(ISRSW_7,7) // office 4
+define(ISRSW_8,8) // office 5
+define(ISRSW_9,9) // shipping office (n/a)
+define(ISRSW_10,10) // single fence back
+define(ISRSW_11,11) // single fence front
+define(ISRSW_12,12) // mineral silo ext with fence back
+define(ISRSW_13,13) // mineral silo ext with fence front
+define(ISRSW_14,14) // overpass ext with fence back
+define(ISRSW_15,15) // overpass ext with fence front
 
 setfeature(_STATION)
 setgrfversion(7)
@@ -32,1022 +32,763 @@ setpath(sprites) // Relative path for real sprites
 textmode_on()
 
 grfinit(GRF_ISRSW,
-    grfname(ALL, "ISR Style Waypoints 1.0")
+    grfname(ALL, "ISR Style Waypoints v1.1")
     grfdescription(ALL, T_ORANGE "ISR Style Waypoints" CRLF
 T_BLACK "A set of waypoints made with ISR graphics" CRLF 
 CRLF
-T_BLACK "Graphics by" T_LGRAY " the ISR team (see readme for full credits)" CRLF
-T_BLACK "Coded by" T_LGRAY " DemianWSE" CRLF
+T_BLACK "By" T_LGRAY " DemianWSE" CRLF
+T_BLACK "Optimized by" T_LGRAY " Michael Blunck" CRLF
+T_BLACK "Original graphics by" T_LGRAY " the ISR team (see readme for full credits)" CRLF
 CRLF
 T_BLACK "License: " T_LGRAY "GPLv2")
     grfurl(ALL, "https://github.com/DemianWSE/ISR_StyleWaypoints")
     grfpalette(DOS)
-    grfversion(1)
+    grfversion(2)
     grfminversion(1)
 )
 
 textmode_off()
 
-//----------------------------------------------------------
-// 
-//----------------------------------------------------------
 
-// ISRSW_0: Empty platform
+//-------------------------------------------------
+// v1.1 uses "advanced sprite layouts" (see m4nfo docs)
+//
+// registers:
+// 4 - track | track snow
+// 5 - snowy roofs
+// 6 - add fences back
+// 7 - add fences front
+//
+// use special sprite resolve block:
+// 4 - fences
+//-------------------------------------------------
 
-definestation(ISRSW_0, "Empty platform",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+asl_on()
+
+// special resolve spriteblock for fences
+spriteblock(
+    set(
+// fences back
+	sprite(ISRStyleWaypoints.png 5 550 01 20 32 -31 -5)
+	sprite(ISRStyleWaypoints.png 40 550 01 20 32 1 -5)
+// fences front
+	sprite(ISRStyleWaypoints.png 5 550 01 20 32 -29 -4)
+	sprite(ISRStyleWaypoints.png 40 550 01 20 32 -1 -4)
+   )
 )
 
-layout(ISRSW_0,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(0, xyz(0, 0, 0), dxdydz(0, 0, 0))
-    )
-    tile(
-        ground(1011)
-        regular(1, xyz(0, 0, 0), dxdydz(0, 0,0))
-    )
+def(100) spriteset(little(0)) // fences
 
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(0, xyz(0, 0, 0), dxdydz(0, 0, 0))
+
+//-------------------------------------------------
+// ISRSW_0: Empty platform
+//-------------------------------------------------
+
+definestation(ISRSW_0, "Empty platform",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+//stationnames(ISRSW_0,
+//	{UK, "Empty platform"},
+//	{D, "Leeres Feld"},
+//	{F, "Case vide"},
+//	{I, "Case vide"},
+//	{NL, "Lege tegel"0
+//)
+
+layout(ISRSW_0,
+    tile(
+	ground(1012, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	regular(0, xyz(0, 0, 0), dxdydz(0, 0, 0))
     )
     tile(
-        ground(1037)
-        regular(1, xyz(0, 0, 0), dxdydz(0, 0, 0))
+	ground(1011, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	regular(1, xyz(0, 0, 0), dxdydz(0, 0, 0))
     )
 )
 
 spriteblock(
     set(
-		sprite(ISRStyleWaypoints.png 5 302 01 31 64 -31 0) 
-		sprite(ISRStyleWaypoints.png 74 302 01 31 64 -31 0) 
+	sprite(ISRStyleWaypoints.png 5 710 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 74 710 01 31 64 -31 0)
     )
 )
 
-def(1) spriteset(little(0),lots(0))
+def(1) spriteset(little(0))
 
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
 )
 
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
 )
 
 makestation(ISRSW_0,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
 // ISRSW_1: Road crossing
+//-------------------------------------------------
 
 definestation(ISRSW_1, "Road crossing",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
-layout(ISRSW_1,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(0, xyz(0, 0, 0), dxdydz(0, 0, 0))
-    )
-    tile(
-        ground(1011)
-        regular(1, xyz(0, 0, 0), dxdydz(0, 0,0))
-    )
-
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(0, xyz(0, 0, 0), dxdydz(0, 0, 0))
-    )
-    tile(
-        ground(1037)
-        regular(1, xyz(0, 0, 0), dxdydz(0, 0, 0))
-    )
-)
+copylayout(ISRSW_0, ISRSW_1) // same layout as above
 
 spriteblock(
     set(
-		sprite(ISRStyleWaypoints.png 143 302 01 31 64 -31 0) 
-		sprite(ISRStyleWaypoints.png 212 302 01 31 64 -31 0) 
+	sprite(ISRStyleWaypoints.png 5 750 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 74 750 01 31 64 -31 0)
     )
 )
 
-def(1) spriteset(little(0),lots(0))
+def(1) spriteset(little(0))
 
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
 )
 
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
 )
 
 makestation(ISRSW_1,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
+// gantry waypoints
+// using common layout for IDs 2,3, 12,13, 14,15
+//
+// registers:
+// 4 - track | track snow
+// 5 - snowy roofs
+// 6 - fences back
+// 7 - fences front
+//
+// use special sprite resolve block:
+// 4 - fences
+//-------------------------------------------------
+
+//-------------------------------------------------
 // ISRSW_2: Mineral silo extension
+//-------------------------------------------------
 
 definestation(ISRSW_2, "Mineral silo extension",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
 layout(ISRSW_2,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(2,xyz(0, 10, 0), dxdydz(16, 6, 30))
+    tile(
+	ground(1012, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	regular(0, xyz(0, 0, 0), dxdydz(16, 1, 5), aslflags({SKIP, RESOLVE_SPRITE}), registers({6, 4})) // fences (back)
+	regular(0, xyz(0, 0, 0), dxdydz(16, 6, 30)) // back
+	regular(2, xyz(0, 10, 0), dxdydz(16, 5, 30)) // front
+	regular(4, xyoff(0, 0), aslflags(SKIP), registers(5)) // snow
+	regular(2, xyz(0, 15, 0), dxdydz(16, 1, 5), aslflags({SKIP, RESOLVE_SPRITE}), registers({7, 4})) // fences (front)
     )
     tile(
-        ground(1011)
-        regular(5, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30))
-    )
-
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(2,xyz(0, 10, 0), dxdydz(16, 6, 30))
-		regular(0,xyz(0, 10, 0), dxdydz(16, 6, 30)) //snow
-    )
-    tile(
-        ground(1037)
-        regular(5, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30))
-		regular(1, xyz(10, 0, 0), dxdydz(6, 16, 30)) //snow
+	ground(1011, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	regular(1, xyz(0, 0, 0), dxdydz(1, 16, 5), aslflags({SKIP, RESOLVE_SPRITE}), registers({6, 4})) // fences (back)
+	regular(1, xyz(0, 0, 0), dxdydz(6, 16, 30)) // back
+	regular(3, xyz(10, 0, 0), dxdydz(5, 16, 30)) // front
+	regular(5, xyoff(0, 0), aslflags(SKIP), registers(5)) // snow
+	regular(3, xyz(15, 0, 0), dxdydz(1, 16, 5), aslflags({SKIP, RESOLVE_SPRITE}), registers({7, 4})) // fences (front)
     )
 )
 
 spriteblock(
     set(
-        sprite(ISRStyleWaypoints.png 5 4 01 24 42 -31 -35)
-        sprite(ISRStyleWaypoints.png 52 4 01 24 42 -8 -36)
-        sprite(ISRStyleWaypoints.png 5 33 01 44 42 -31 -35) 
-        sprite(ISRStyleWaypoints.png 52 33 01 44 42 -8 -36) 
-		sprite(ISRStyleWaypoints.png 99 33 01 16 9 -7 -10) 
-		sprite(ISRStyleWaypoints.png 112 33 01 16 9 1 -11) 
+	sprite(ISRStyleWaypoints.png 5 350 01 16 9 -7 -10) // gantry pole back x
+	sprite(ISRStyleWaypoints.png 18 350 01 16 9 1 -11) // gantry pole back y
+	sprite(ISRStyleWaypoints.png 5 370 01 44 42 -31 -35) // gantry building x
+	sprite(ISRStyleWaypoints.png 50 370 01 44 42 -8 -36) // gantry building y
+	sprite(ISRStyleWaypoints.png 5 420 01 24 42 0 0) // snowy gantry roof x
+	sprite(ISRStyleWaypoints.png 50 420 01 24 42 0 0) // snowy gantry roof y
     )
 )
 
-def(1) spriteset(little(0),lots(0))
+def(0) spriteset(little(0))
 
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
+// either use building or fence sprite block
+def(1) spritetype(
+	ref(100) if(4) // fence sprites
+	ref(0) else  // building sprites
 )
 
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+// available for following IDs
+def(4, RESOLVE) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(5) setregisters(6, {0, 0}, ref(RESOLVE)) // no fences
+
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
 )
 
 makestation(ISRSW_2,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
+// ISRSW_12: Mineral silo extension with fences (top/back)
+//-------------------------------------------------
+
+definestation(ISRSW_12, "Mineral silo extension with fences (back)",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_2, ISRSW_12) // same layout as above
+
+def(5) setregisters(6, {1, 0}, ref(RESOLVE)) // fence back
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
+)
+
+makestation(ISRSW_12,
+	default(ref(10))
+)
+
+
+//-------------------------------------------------
+// ISRSW_13: Mineral silo extension with fences (bottom/front)
+//-------------------------------------------------
+
+definestation(ISRSW_13, "Mineral silo extension with fences (front)",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_2, ISRSW_13) // same layout as above
+
+def(5) setregisters(6, {0, 1}, ref(RESOLVE)) // fence front
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
+)
+
+makestation(ISRSW_13,
+	default(ref(10))
+)
+
+
+//-------------------------------------------------
 // ISRSW_3: Overpass extension
+//-------------------------------------------------
 
 definestation(ISRSW_3, "Overpass extension",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
-layout(ISRSW_3,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(5,xyz(0, 10, 0), dxdydz(16, 6, 30))
-    )
-    tile(
-        ground(1011)
-        regular(6, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(7, xyz(10, 0, 0), dxdydz(6, 16, 30))
-    )
-
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-		regular(0, xyz(0, 0, 0), dxdydz(16, 6, 30)) //snow
-        regular(5,xyz(0, 10, 0), dxdydz(16, 6, 30))
-		regular(1,xyz(0, 10, 0), dxdydz(16, 6, 30)) //snow
-    )
-    tile(
-        ground(1037)
-        regular(6, xyz(0, 0, 0), dxdydz(6, 16, 30))
-		regular(2, xyz(0, 0, 0), dxdydz(6, 16, 30)) //snow
-        regular(7, xyz(10, 0, 0), dxdydz(6, 16, 30))
-		regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30)) //snow
-    )
-)
+copylayout(ISRSW_2, ISRSW_3) // same layout as above
 
 spriteblock(
     set(
-        sprite(ISRStyleWaypoints.png 5 82 01 9 19 -20 -13)
-        sprite(ISRStyleWaypoints.png 29 82 01 17 35 -32 -19)
-		sprite(ISRStyleWaypoints.png 69 82 01 9 19 3 -13) 
-		sprite(ISRStyleWaypoints.png 93 82 01 17 35 -1 -19) 
-        sprite(ISRStyleWaypoints.png 5 103 01 24 19 -20 -13) 
-        sprite(ISRStyleWaypoints.png 29 103 01 35 35 -32 -19) 
-		sprite(ISRStyleWaypoints.png 69 103 01 24 19 3 -13) 
-		sprite(ISRStyleWaypoints.png 93 103 01 35 35 -1 -19) 
+	sprite(ISRStyleWaypoints.png 5 450 01 11 12 -20 -1) // gantry pole back x
+	sprite(ISRStyleWaypoints.png 20 450 01 11 12 10 0) // gantry pole back y
+	sprite(ISRStyleWaypoints.png 5 470 01 39 43 -40 -23) // gantry building x
+	sprite(ISRStyleWaypoints.png 50 470 01 39 43 -1 -23) // gantry building y
+	sprite(ISRStyleWaypoints.png 5 520 01 21 43 0 0) // snowy gantry roof x
+	sprite(ISRStyleWaypoints.png 50 520 01 21 43 0 0) // snowy gantry roof y
     )
 )
 
-def(1) spriteset(little(0),lots(0))
+def(0) spriteset(little(0))
 
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
+def(1) spritetype(
+	ref(100) if(4) // fence sprites
+	ref(0) else  // building sprites
 )
 
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(RESOLVE) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(5) setregisters(6, {0, 0}, ref(RESOLVE)) // no fences
+
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
 )
 
 makestation(ISRSW_3,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
+// ISRSW_14: Overpass extension with fences (top/back)
+//-------------------------------------------------
+
+definestation(ISRSW_14, "Overpass extension with fences (back)",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_2, ISRSW_14) // same layout as above
+
+def(5) setregisters(6, {1, 0}, ref(RESOLVE)) // fence back
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
+)
+
+makestation(ISRSW_14,
+	default(ref(10))
+)
+
+
+//-------------------------------------------------
+// ISRSW_15: Overpass extension with fences (bottom/front)
+//-------------------------------------------------
+
+definestation(ISRSW_15, "Overpass extension with fences (front)",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_2, ISRSW_15) // same layout as above
+
+def(5) setregisters(6, {0, 1}, ref(RESOLVE)) // fence front
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
+)
+
+makestation(ISRSW_15,
+	default(ref(10))
+)
+
+
+//-------------------------------------------------
+// office waypoints
+// using common layout for IDs 4 .. 8
+//
+// registers:
+// 4 - track | track snow
+// 5 - snowy roofs
+// 6 - offset for building sprite number
+//-------------------------------------------------
+
+//-------------------------------------------------
 // ISRSW_4: Office
+//-------------------------------------------------
 
 definestation(ISRSW_4, "Office",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
 layout(ISRSW_4,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        compcol(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
+    tile(
+	ground(1012, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	compcol(0, xyz(0, 0, 0), dxdydz(16, 6, 15), aslflags(OFFSET_SPRITE), registers(6)) // building
+	regular(2, xyoff(0, 0), aslflags({SKIP, OFFSET_SPRITE}), registers({5, 6})) // snow
     )
     tile(
-        ground(1011)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-    )
-
-//snow
-    tile(_snow,
-        ground(1038)
-        compcol(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-		regular(0,xyz(0, 0, 0), dxdydz(16, 6, 15)) //snow
-    )
-    tile(
-        ground(1037)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-		regular(1, xyz(0, 0, 0), dxdydz(6, 16, 15)) //snow
+	ground(1011, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	compcol(1, xyz(0, 0, 0), dxdydz(6, 16, 15), aslflags(OFFSET_SPRITE), registers(6)) // building
+	regular(3, xyoff(0, 0), aslflags({SKIP, OFFSET_SPRITE}), registers({5, 6})) // snow
     )
 )
 
 spriteblock(
     set(
-        sprite(ISRStyleWaypoints.png 5 142 01 18 38 -30 -4)
-        sprite(ISRStyleWaypoints.png 48 142 01 18 38 -6 -4)
-		sprite(ISRStyleWaypoints.png 5 162 01 23 38 -30 -4) 
-		sprite(ISRStyleWaypoints.png 48 162 01 23 38 -6 -4) 
+// ID ISRSW_4
+	sprite(ISRStyleWaypoints.png 5 580 01 23 38 -30 -4) // building
+	sprite(ISRStyleWaypoints.png 48 580 01 23 38 -6 -4)
+	sprite(ISRStyleWaypoints.png 5 610 01 18 38 0 0) // snow
+	sprite(ISRStyleWaypoints.png 48 610 01 18 38 0 0)
+    // ID ISRSW_5
+	sprite(ISRStyleWaypoints.png 91 580 01 24 26 -24 -9) // building
+	sprite(ISRStyleWaypoints.png 122 580 01 24 26 0 -9)
+	sprite(ISRStyleWaypoints.png 91 610 01 13 26 0 0) // snow
+	sprite(ISRStyleWaypoints.png 122 610 01 13 26 0 0)
+// ID ISRSW_6
+	sprite(ISRStyleWaypoints.png 153 580 01 25 29 -25 -9) // building
+	sprite(ISRStyleWaypoints.png 187 580 01 25 29 -2 -9)
+	sprite(ISRStyleWaypoints.png 153 610 01 19 29 0 0) // snow
+	sprite(ISRStyleWaypoints.png 187 610 01 19 29 0 0)
+// ID ISRSW_7
+	sprite(ISRStyleWaypoints.png 220 580 01 24 37 -29 -6) // building
+	sprite(ISRStyleWaypoints.png 263 580 01 24 37 -6 -6)
+	sprite(ISRStyleWaypoints.png 220 610 01 18 37 0 0) // snow
+	sprite(ISRStyleWaypoints.png 263 610 01 18 37 0 0)
+// ID ISRSW_8
+	sprite(ISRStyleWaypoints.png 306 580 01 23 22 -23 -9) // building
+	sprite(ISRStyleWaypoints.png 337 580 01 23 22 3 -9)
+	sprite(ISRStyleWaypoints.png 306 610 01 14 22 0 2) // snow (special!)
+	sprite(ISRStyleWaypoints.png 337 610 01 14 22 0 2)
     )
 )
 
-def(1) spriteset(little(0),lots(0))
+def(1) spriteset(little(0))
 
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+// available for following IDs
+def(RESOLVE) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
 )
 
+def(5) setregisters(6, 0, ref(RESOLVE))
+
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
 )
 
 makestation(ISRSW_4,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
 // ISRSW_5: Office
+//-------------------------------------------------
 
 definestation(ISRSW_5, "Office",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
-layout(ISRSW_5,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-    )
-    tile(
-        ground(1011)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-    )
+copylayout(ISRSW_4, ISRSW_5)
 
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-		regular(0,xyz(0, 0, 0), dxdydz(16, 6, 15)) //snow
-    )
-    tile(
-        ground(1037)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-		regular(1, xyz(0, 0, 0), dxdydz(6, 16, 15)) //snow
-    )
-)
-
-spriteblock(
-    set(
-        sprite(ISRStyleWaypoints.png 91 142 01 13 26 -24 -9)
-        sprite(ISRStyleWaypoints.png 122 142 01 13 26 0 -9)
-		sprite(ISRStyleWaypoints.png 91 162 01 24 26 -24 -9) 
-		sprite(ISRStyleWaypoints.png 122 162 01 24 26 0 -9) 
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
+def(5) setregisters(6, 4, ref(RESOLVE))
 
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
 )
 
 makestation(ISRSW_5,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
 // ISRSW_6: Office
+//-------------------------------------------------
 
 definestation(ISRSW_6, "Office",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
-layout(ISRSW_6,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-    )
-    tile(
-        ground(1011)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-    )
+copylayout(ISRSW_4, ISRSW_6)
 
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-		regular(0,xyz(0, 0, 0), dxdydz(16, 6, 15)) //snow
-    )
-    tile(
-        ground(1037)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-		regular(1, xyz(0, 0, 0), dxdydz(6, 16, 15)) //snow
-    )
-)
-
-spriteblock(
-    set(
-        sprite(ISRStyleWaypoints.png 153 142 01 19 29 -25 -9)
-        sprite(ISRStyleWaypoints.png 187 142 01 19 29 -2 -9)
-		sprite(ISRStyleWaypoints.png 153 162 01 25 29 -25 -9) 
-		sprite(ISRStyleWaypoints.png 187 162 01 25 29 -2 -9) 
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
+def(5) setregisters(6, 8, ref(RESOLVE))
 
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
 )
 
 makestation(ISRSW_6,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
 // ISRSW_7: Office
+//-------------------------------------------------
 
 definestation(ISRSW_7, "Office",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
-layout(ISRSW_7,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-    )
-    tile(
-        ground(1011)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-    )
+copylayout(ISRSW_4, ISRSW_7)
 
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-		regular(0,xyz(0, 0, 0), dxdydz(16, 6, 15)) //snow
-    )
-    tile(
-        ground(1037)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-		regular(1, xyz(0, 0, 0), dxdydz(6, 16, 15)) //snow
-    )
-)
-
-spriteblock(
-    set(
-        sprite(ISRStyleWaypoints.png 5 190 01 18 37 -29 -6)
-        sprite(ISRStyleWaypoints.png 48 190 01 18 37 -6 -6)
-		sprite(ISRStyleWaypoints.png 5 209 01 24 37 -29 -6) 
-		sprite(ISRStyleWaypoints.png 48 209 01 24 37 -6 -6) 
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
+def(5) setregisters(6, 12, ref(RESOLVE))
 
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
 )
 
 makestation(ISRSW_7,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
 // ISRSW_8: Office
+//-------------------------------------------------
 
 definestation(ISRSW_8, "Office",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
-layout(ISRSW_8,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-    )
-    tile(
-        ground(1011)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-    )
+copylayout(ISRSW_4, ISRSW_8)
 
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(2, xyz(0, 0, 0), dxdydz(16, 6, 15))
-		regular(0,xyz(0, 0, 0), dxdydz(16, 6, 15)) //snow
-    )
-    tile(
-        ground(1037)
-        regular(3, xyz(0, 0, 0), dxdydz(6, 16, 15))
-		regular(1, xyz(0, 0, 0), dxdydz(6, 16, 15)) //snow
-    )
-)
-
-spriteblock(
-    set(
-        sprite(ISRStyleWaypoints.png 91 190 01 14 22 -23 -7)
-        sprite(ISRStyleWaypoints.png 122 190 01 14 22 3 -7)
-		sprite(ISRStyleWaypoints.png 91 209 01 23 22 -23 -9) 
-		sprite(ISRStyleWaypoints.png 122 209 01 23 22 3 -9) 
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
+def(5) setregisters(6, 16, ref(RESOLVE))
 
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
 )
 
 makestation(ISRSW_8,
-    default(ref(10))
+	default(ref(10))
 )
 
-// // ISRSW_9: Shipping office
+
+//-------------------------------------------------
+// ISRSW_9: Shipping office
+//-------------------------------------------------
 
 // definestation(ISRSW_9, "Shipping office",
-    // class("WAYP")
-    // callbacks(CB_LAYOUT)
-    // exclude_widths(8)
-    // exclude_lengths(8)
+//     class("WAYP")
+//     callbacks(CB_LAYOUT)
+//     exclude_widths(8)
+//     exclude_lengths(8)
 // )
-
-// layout(ISRSW_9,
-// //normal
-    // tile(_nosnow,
-        // ground(1012)
-        // regular(2, xyz(0, 0, 0), dxdydz(16, 6, 20))
-    // )
-    // tile(
-        // ground(1011)
-        // regular(3, xyz(0, 0, 0), dxdydz(6, 16, 20))
-    // )
-
+//
+//layout(ISRSW_9,
+//
+//	tile(_nosnow,
+//		ground(1012)
+//		compcol(2, xyz(0, 0, 0), dxdydz(16, 6, 20))
+//	)
+//	tile(
+//		ground(1011)
+//		compcol(3, xyz(0, 0, 0), dxdydz(6, 16, 20))
+//)
+//
 // //snow
-    // tile(_snow,
-        // ground(1038)
-        // regular(2, xyz(0, 0, 0), dxdydz(16, 6, 20))
-		// regular(0,xyz(0, 0, 0), dxdydz(16, 6, 20)) //snow
-    // )
-    // tile(
-        // ground(1037)
-        // regular(3, xyz(0, 0, 0), dxdydz(6, 16, 20))
-		// regular(1, xyz(0, 0, 0), dxdydz(6, 16, 20)) //snow
-    // )
+// tile(_snow,
+// ground(1038)
+// compcol(2, xyz(0, 0, 0), dxdydz(16, 6, 20))
+// compcol(0,xyz(0, 0, 0), dxdydz(16, 6, 20)) //snow
 // )
-
+// tile(
+// ground(1037)
+// compcol(3, xyz(0, 0, 0), dxdydz(6, 16, 20))
+// compcol(1, xyz(0, 0, 0), dxdydz(6, 16, 20)) //snow
+// )
+// )
+//
 // spriteblock(
-    // set(
-        // sprite(ISRStyleWaypoints.png 5 240 01 23 34 -24 -15)
-        // sprite(ISRStyleWaypoints.png 46 240 01 23 34 -8 -15)
-		// sprite(ISRStyleWaypoints.png 5 265 01 29 36 -24 -15) 
-		// sprite(ISRStyleWaypoints.png 46 265 01 29 36 -10 -15) 
-    // )
+// set(
+// sprite(ISRStyleWaypoints.png 5 240 01 23 34 -24 -15)
+// sprite(ISRStyleWaypoints.png 46 240 01 23 34 -8 -15)
+// sprite(ISRStyleWaypoints.png 5 265 01 29 36 -24 -15)
+// sprite(ISRStyleWaypoints.png 46 265 01 29 36 -10 -15)
 // )
-
-// def(1) spriteset(little(0),lots(0))
-
+// )
+//
+// def(1) spriteset(little(0))
+//
 // // check for snow
 // def(9) tinfo_terrain(
-	// reftile(_snow) if(SNOW) // snow
-	// reftile(_nosnow) else     // no snow
+// reftile(_snow) if(SNOW) // snow
+// reftile(_nosnow) else     // no snow
 // )
-
+//
 // def(10) callback(
-	// ref(9) if(CB_LAYOUT) // tile layout
-	// ref(1) else	     // graphics chain
+// ref(9) if(CB_LAYOUT) // tile layout
+// ref(1) else	     // graphics chain
 // )
-
+//
 // makestation(ISRSW_9,
-    // default(ref(10))
+// default(ref(10))
 // )
 
-// ISRSW_10: Fences (top)
 
-definestation(ISRSW_10, "Fences (top)",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+//-------------------------------------------------
+// ISRSW_10: Fences (top)
+//-------------------------------------------------
+
+definestation(ISRSW_10, "Fences (back)",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
 layout(ISRSW_10,
 //normal
-    tile(_nosnow,
-        ground(1012)
-        regular(0, xyz(0, 0, 0), dxdydz(16, 1, 5))
+    tile(
+	ground(1012, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	regular(0, xyz(0, 0, 0), dxdydz(16, 1, 5), aslflags({SKIP, RESOLVE_SPRITE}), registers({6, 4})) // fences (back))
+	regular(2, xyz(0, 15, 0), dxdydz(16, 1, 5), aslflags({SKIP, RESOLVE_SPRITE}), registers({7, 4})) // fences (front))
     )
     tile(
-        ground(1011)
-        regular(1, xyz(0, 0, 0), dxdydz(1, 16, 5))
-    )
-
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(0, xyz(0, 0, 0), dxdydz(16, 1, 5))
-    )
-    tile(
-        ground(1037)
-        regular(1, xyz(0, 0, 0), dxdydz(1, 16, 5))
+	ground(1011, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	regular(1, xyz(0, 0, 0), dxdydz(1, 16, 5), aslflags({SKIP, RESOLVE_SPRITE}), registers({6, 4})) // fences (back))
+	regular(3, xyz(15, 0, 0), dxdydz(1, 16, 5), aslflags({SKIP, RESOLVE_SPRITE}), registers({7, 4})) // fences (front))
     )
 )
 
-spriteblock(
-    set(
-		sprite(ISRStyleWaypoints.png 150 33 01 20 32 -31 -5) 
-		sprite(ISRStyleWaypoints.png 185 33 01 20 32 1 -5) 
-    )
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(100)) // snow
+def(3) setregisters(4, {0, 0}, ref(100)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
 )
 
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
+def(5) setregisters(6, {1, 0}, ref(4)) // fence back
 
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
 )
 
 makestation(ISRSW_10,
-    default(ref(10))
+	default(ref(10))
 )
 
+
+//-------------------------------------------------
 // ISRSW_11: Fences (bottom)
+//-------------------------------------------------
 
-definestation(ISRSW_11, "Fences (bottom)",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+definestation(ISRSW_11, "Fences (front)",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
 )
 
-layout(ISRSW_11,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(0, xyz(0, 15, 0), dxdydz(16, 1, 5))
-    )
-    tile(
-        ground(1011)
-        regular(1, xyz(15, 0, 0), dxdydz(1, 16, 5))
-    )
+copylayout(ISRSW_10, ISRSW_11)
 
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(0, xyz(0, 15, 0), dxdydz(16, 1, 5))
-    )
-    tile(
-        ground(1037)
-        regular(1, xyz(15, 0, 0), dxdydz(1, 16, 5))
-    )
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(100)) // snow
+def(3) setregisters(4, {0, 0}, ref(100)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
 )
 
-spriteblock(
-    set(
-		sprite(ISRStyleWaypoints.png 150 33 01 20 32 -29 -4) 
-		sprite(ISRStyleWaypoints.png 185 33 01 20 32 -1 -4) 
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
+def(5) setregisters(6, {0, 1}, ref(4)) // fence
 
 def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
+	cbr(0) if(CB_LAYOUT)
+	ref(5) else
 )
 
 makestation(ISRSW_11,
-    default(ref(10))
+	default(ref(10))
 )
 
-// ISRSW_12: Mineral silo extension with fences (top)
+asl_off()
 
-definestation(ISRSW_12, "Mineral silo extension with fences (top)",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
+stationnames(ISRSW_0,
+	{UK, "Empty platform", "Road crossing",
+		"Mineral silo extension", "Overpass extension",
+		"Office", "Office", "Office", "Office", "Office"},
+	{D, "Leeres Feld", UTF8 "Bahnübergang",
+		UTF8 "Bergwerksgebäude (Erweiterung)", UTF8 "Überführung (Erweiterung)",
+		UTF8 "Bürogebäude", UTF8 "Bürogebäude", UTF8 "Bürogebäude", UTF8 "Bürogebäude", UTF8 "Bürogebäude"},
+	{F, "Case vide", UTF8 "Passage à niveau",
+		UTF8 "Silo à mineraux (extension)", UTF8 "Passage supérieur (extension)",
+		"Bureau", "Bureau", "Bureau", "Bureau", "Bureau"},
+	{E, UTF8 "Plataforma vacía", "Paso a nivel", 
+		UTF8 "Silo de minerales (extensión)", "Paso elevado", "Oficina",
+		"Oficina", "Oficina", "Oficina", "Oficina"},
+	{I, "Case vide", UTF8 "Incrocío stradale",
+		"Silo per minerali (estensione)", "Sovrappasso (estensione)",
+		"Ufficio", "Ufficio", "Ufficio", "Ufficio", "Ufficio"},
+	{NL, "Lege tegel", "Spoorwegovergang",
+		"Delfstoffensilo (Verlenging)", "Loopbrug (verlenging)",
+		"Kantoor", "Kantoor", "Kantoor", "Kantoor", "Kantoor"}
 )
 
-layout(ISRSW_12,
-//normal
-    tile(_nosnow,
-        ground(1012)
-		regular(6, xyz(0, 0, 0), dxdydz(16, 1, 5)) //fences
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(2,xyz(0, 10, 0), dxdydz(16, 6, 30))
-    )
-    tile(
-        ground(1011)
-		regular(7, xyz(0, 0, 0), dxdydz(1, 16, 5)) //fences
-        regular(5, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30))
-    )
+// ID 9 missing!
 
-//snow
-    tile(_snow,
-        ground(1038)
-		regular(6, xyz(0, 0, 0), dxdydz(16, 1, 5)) //fences
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(2,xyz(0, 10, 0), dxdydz(16, 6, 30))
-		regular(0,xyz(0, 10, 0), dxdydz(16, 6, 30)) //snow
-    )
-    tile(
-        ground(1037)
-		regular(7, xyz(0, 0, 0), dxdydz(1, 16, 5)) //fences
-        regular(5, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30))
-		regular(1, xyz(10, 0, 0), dxdydz(6, 16, 30)) //snow
-    )
-)
-
-spriteblock(
-    set(
-        sprite(ISRStyleWaypoints.png 5 4 01 24 42 -31 -35)
-        sprite(ISRStyleWaypoints.png 52 4 01 24 42 -8 -36)
-        sprite(ISRStyleWaypoints.png 5 33 01 44 42 -31 -35) 
-        sprite(ISRStyleWaypoints.png 52 33 01 44 42 -8 -36) 
-		sprite(ISRStyleWaypoints.png 99 33 01 16 9 -7 -10) 
-		sprite(ISRStyleWaypoints.png 112 33 01 16 9 1 -11) 
-		sprite(ISRStyleWaypoints.png 150 33 01 20 32 -31 -5) 
-		sprite(ISRStyleWaypoints.png 185 33 01 20 32 1 -5) 
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
-
-def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
-)
-
-makestation(ISRSW_12,
-    default(ref(10))
-)
-
-// ISRSW_13: Mineral silo extension with fences (bottom)
-
-definestation(ISRSW_13, "Mineral silo extension with fences (bottom)",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
-)
-
-layout(ISRSW_13,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(2,xyz(0, 10, 0), dxdydz(16, 6, 30))
-		regular(6, xyz(0, 10, 0), dxdydz(16, 6, 30)) //fences
-    )
-    tile(
-        ground(1011)
-        regular(5, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30))
-		regular(7, xyz(10, 0, 0), dxdydz(6, 16, 30)) //fences
-    )
-
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(2,xyz(0, 10, 0), dxdydz(16, 6, 30))
-		regular(0,xyz(0, 10, 0), dxdydz(16, 6, 30)) //snow
-		regular(6, xyz(0, 10, 0), dxdydz(16, 6, 30)) //fences
-    )
-    tile(
-        ground(1037)
-        regular(5, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30))
-		regular(1, xyz(10, 0, 0), dxdydz(6, 16, 30)) //snow
-		regular(7, xyz(10, 0, 0), dxdydz(6, 16, 30)) //fences
-    )
-)
-
-spriteblock(
-    set(
-        sprite(ISRStyleWaypoints.png 5 4 01 24 42 -31 -35)
-        sprite(ISRStyleWaypoints.png 52 4 01 24 42 -8 -36)
-        sprite(ISRStyleWaypoints.png 5 33 01 44 42 -31 -35) 
-        sprite(ISRStyleWaypoints.png 52 33 01 44 42 -8 -36) 
-		sprite(ISRStyleWaypoints.png 99 33 01 16 9 -7 -10) 
-		sprite(ISRStyleWaypoints.png 112 33 01 16 9 1 -11)
-		sprite(ISRStyleWaypoints.png 150 33 01 20 32 -19 1) 
-		sprite(ISRStyleWaypoints.png 185 33 01 20 32 -11 1) 
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
-
-def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
-)
-
-makestation(ISRSW_13,
-    default(ref(10))
-)
-
-// ISRSW_14: Overpass extension with fences (top)
-
-definestation(ISRSW_14, "Overpass extension with fences (top)",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
-)
-
-layout(ISRSW_14,
-//normal
-    tile(_nosnow,
-        ground(1012)
-		regular(8, xyz(0, 0, 0), dxdydz(16, 1, 5)) //fences
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(5,xyz(0, 10, 0), dxdydz(16, 6, 30))
-    )
-    tile(
-        ground(1011)
-		regular(9, xyz(0, 0, 0), dxdydz(1, 16, 5)) //fences
-        regular(6, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(7, xyz(10, 0, 0), dxdydz(6, 16, 30))
-    )
-
-//snow
-    tile(_snow,
-        ground(1038)
-		regular(8, xyz(0, 0, 0), dxdydz(16, 1, 5)) //fences
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-		regular(0, xyz(0, 0, 0), dxdydz(16, 6, 30)) //snow
-        regular(5,xyz(0, 10, 0), dxdydz(16, 6, 30))
-		regular(1,xyz(0, 10, 0), dxdydz(16, 6, 30)) //snow
-    )
-    tile(
-        ground(1037)
-		regular(9, xyz(0, 0, 0), dxdydz(1, 16, 5)) //fences
-        regular(6, xyz(0, 0, 0), dxdydz(6, 16, 30))
-		regular(2, xyz(0, 0, 0), dxdydz(6, 16, 30)) //snow
-        regular(7, xyz(10, 0, 0), dxdydz(6, 16, 30))
-		regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30)) //snow
-    )
-)
-
-spriteblock(
-    set(
-        sprite(ISRStyleWaypoints.png 5 82 01 9 19 -20 -13)
-        sprite(ISRStyleWaypoints.png 29 82 01 17 35 -32 -19)
-		sprite(ISRStyleWaypoints.png 69 82 01 9 19 3 -13) 
-		sprite(ISRStyleWaypoints.png 93 82 01 17 35 -1 -19) 
-        sprite(ISRStyleWaypoints.png 5 103 01 24 19 -20 -13) 
-        sprite(ISRStyleWaypoints.png 29 103 01 35 35 -32 -19) 
-		sprite(ISRStyleWaypoints.png 69 103 01 24 19 3 -13) 
-		sprite(ISRStyleWaypoints.png 93 103 01 35 35 -1 -19)
-		sprite(ISRStyleWaypoints.png 150 33 01 20 32 -31 -5) 
-		sprite(ISRStyleWaypoints.png 185 33 01 20 32 1 -5)  
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
-
-def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
-)
-
-makestation(ISRSW_14,
-    default(ref(10))
-)
-
-// ISRSW_15: Overpass extension with fences (bottom)
-
-definestation(ISRSW_15, "Overpass extension with fences (bottom)",
-    class("WAYP")
-    callbacks(CB_LAYOUT)
-    exclude_widths(8)
-    exclude_lengths(8)
-)
-
-layout(ISRSW_15,
-//normal
-    tile(_nosnow,
-        ground(1012)
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-        regular(5,xyz(0, 10, 0), dxdydz(16, 6, 30))
-		regular(8, xyz(0, 10, 0), dxdydz(16, 6, 30)) //fences
-    )
-    tile(
-        ground(1011)
-        regular(6, xyz(0, 0, 0), dxdydz(6, 16, 30))
-        regular(7, xyz(10, 0, 0), dxdydz(6, 16, 30))
-		regular(9, xyz(10, 0, 0), dxdydz(6, 16, 30)) //fences
-    )
-
-//snow
-    tile(_snow,
-        ground(1038)
-        regular(4, xyz(0, 0, 0), dxdydz(16, 6, 30))
-		regular(0, xyz(0, 0, 0), dxdydz(16, 6, 30)) //snow
-        regular(5,xyz(0, 10, 0), dxdydz(16, 6, 30))
-		regular(1,xyz(0, 10, 0), dxdydz(16, 6, 30)) //snow
-		regular(8, xyz(0, 10, 0), dxdydz(16, 6, 30)) //fences
-    )
-    tile(
-        ground(1037)
-        regular(6, xyz(0, 0, 0), dxdydz(6, 16, 30))
-		regular(2, xyz(0, 0, 0), dxdydz(6, 16, 30)) //snow
-        regular(7, xyz(10, 0, 0), dxdydz(6, 16, 30))
-		regular(3, xyz(10, 0, 0), dxdydz(6, 16, 30)) //snow
-		regular(9, xyz(10, 0, 0), dxdydz(6, 16, 30)) //fences
-    )
-)
-
-spriteblock(
-    set(
-        sprite(ISRStyleWaypoints.png 5 82 01 9 19 -20 -13)
-        sprite(ISRStyleWaypoints.png 29 82 01 17 35 -32 -19)
-		sprite(ISRStyleWaypoints.png 69 82 01 9 19 3 -13) 
-		sprite(ISRStyleWaypoints.png 93 82 01 17 35 -1 -19) 
-        sprite(ISRStyleWaypoints.png 5 103 01 24 19 -20 -13) 
-        sprite(ISRStyleWaypoints.png 29 103 01 35 35 -32 -19) 
-		sprite(ISRStyleWaypoints.png 69 103 01 24 19 3 -13) 
-		sprite(ISRStyleWaypoints.png 93 103 01 35 35 -1 -19)
-		sprite(ISRStyleWaypoints.png 150 33 01 20 32 -19 1) 
-		sprite(ISRStyleWaypoints.png 185 33 01 20 32 -11 1) 
-    )
-)
-
-def(1) spriteset(little(0),lots(0))
-
-// check for snow
-def(9) tinfo_terrain(
-	reftile(_snow) if(SNOW) // snow
-	reftile(_nosnow) else     // no snow
-)
-
-def(10) callback(
-	ref(9) if(CB_LAYOUT) // tile layout
-	ref(1) else	     // graphics chain
-)
-
-makestation(ISRSW_15,
-    default(ref(10))
+stationnames(ISRSW_10,
+	{UK, "Fences (back)", "Fences (front)",
+		"Mineral silo extension with fences (back)", "Mineral silo extension with fences (front)",
+		"Overpass extension with fences (back)", "Overpass extension with fences (front)"},
+	{D, "Zaun (hinten)", "Zaun (vorne)",
+		UTF8 "Bergwerksgebäude (Erweiterung mit Zaun hinten)", UTF8 "Bergwerksgebäude (Erweiterung mit Zaun vorne)",
+		UTF8 "Überführung (Erweiterung mit Zaun hinten)", UTF8 "Überführung (Erweiterung mit Zaun vorne)"},
+	{F, UTF8 "Clôture (devant)", "Clôture (avant)",
+		UTF8 "Silo à mineraux (extension avec clôture devant)", UTF8 "Silo à mineraux (extension avec clôture avant)",
+		UTF8 "Passage supérieur (extension avec clôture devant)", UTF8 "Passage supérieur (extension avec clôture avant)"},
+	{E, "Vallas (traseras)", "Vallas (delanteras)",
+		UTF8 "Silo de minerales (extensión con vallas traseras)", UTF8 "Silo de minerales (extensión con vallas delanteras)", 
+		"Paso elevado (con vallas delanteras)", "Paso elevado (con vallas traseras)"},
+	{I, "Recinto (posteriore)", "Recinto (frontale)",
+		"Silo per minerali (estensione con recinto posteriore)", "Silo per minerali (estensione con recinto frontale)",
+		"Sovrappasso (estensione con recinto posteriore)", "Sovrappasso (estensione con recinto frontale)"},
+	{NL, "Hek (achterzijde)", "Hek (voorzijde)",
+		"Delfstoffensilo (Verlenging met hek achterzijde)", "Delfstoffensilo (Verlenging met hek voorzijde)",
+		"Loopbrug (Verlenging met hek achterzijde)", "Loopbrug (Verlenging met hek voorzijde)"}
 )
