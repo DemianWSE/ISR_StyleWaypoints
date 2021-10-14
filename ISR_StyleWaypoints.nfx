@@ -6,7 +6,7 @@
 // v1.1 31-07-2021 mb
 
 
-define(GRF_ISRSW, 50 47 06 00)
+define(GRF_ISRSW, 50 47 06 01)
 
 define(ISRSW_0,0) // empty
 define(ISRSW_1,1) // with road
