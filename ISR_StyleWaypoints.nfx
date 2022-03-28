@@ -496,7 +496,7 @@ def(5) setregisters(6, 0, ref(RESOLVE))
 
 def(10) callback(
 	cbr(0) if(CB_LAYOUT)
-	ref(4) else
+	ref(5) else
 )
 
 makestation(ISRSW_4,
