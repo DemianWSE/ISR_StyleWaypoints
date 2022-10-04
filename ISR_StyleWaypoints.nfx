@@ -4,9 +4,9 @@
 //----------------------------------------------------------
 
 // v1.1 31-07-2021 mb
+// v1.2 04-10-2022
 
-
-define(GRF_ISRSW, 50 47 06 01)
+define(GRF_ISRSW, 50 47 06 02)
 
 define(ISRSW_0,0) // empty
 define(ISRSW_1,1) // with road
@@ -24,6 +24,14 @@ define(ISRSW_12,12) // mineral silo ext with fence back
 define(ISRSW_13,13) // mineral silo ext with fence front
 define(ISRSW_14,14) // overpass ext with fence back
 define(ISRSW_15,15) // overpass ext with fence front
+define(ISRSW_16,16) // mud transition front
+define(ISRSW_17,17) // mud transition back
+define(ISRSW_18,18) // asphalt transition front
+define(ISRSW_19,19) // asphalt transition back
+define(ISRSW_20,20) // dirty asphalt transition front
+define(ISRSW_21,21) // dirty asphalt transition back
+define(ISRSW_22,22) // cobble transition front
+define(ISRSW_23,23) // cobble transition back
 
 setfeature(_STATION)
 setgrfversion(7)
@@ -32,18 +40,19 @@ setpath(sprites) // Relative path for real sprites
 textmode_on()
 
 grfinit(GRF_ISRSW,
-    grfname(ALL, "ISR Style Waypoints v1.1")
+    grfname(ALL, "ISR Style Waypoints v1.2")
     grfdescription(ALL, T_ORANGE "ISR Style Waypoints" CRLF
-T_BLACK "A set of waypoints made with ISR graphics" CRLF 
+T_BLACK "A set of waypoints made with ISR (and CHIPS) graphics" CRLF 
 CRLF
 T_BLACK "By" T_LGRAY " DemianWSE" CRLF
 T_BLACK "Optimized by" T_LGRAY " Michael Blunck" CRLF
-T_BLACK "Original graphics by" T_LGRAY " the ISR team (see readme for full credits)" CRLF
+T_BLACK "Original graphics by" T_LGRAY " the ISR team and the CHIPS team" CRLF
+T_LGRAY "(see readme for full credits)" CRLF
 CRLF
 T_BLACK "License: " T_LGRAY "GPLv2")
     grfurl(ALL, "https://github.com/DemianWSE/ISR_StyleWaypoints")
     grfpalette(DOS)
-    grfversion(2)
+    grfversion(3)
     grfminversion(1)
 )
 
@@ -457,7 +466,7 @@ spriteblock(
 	sprite(ISRStyleWaypoints.png 48 580 01 23 38 -6 -4)
 	sprite(ISRStyleWaypoints.png 5 610 01 18 38 0 0) // snow
 	sprite(ISRStyleWaypoints.png 48 610 01 18 38 0 0)
-    // ID ISRSW_5
+// ID ISRSW_5
 	sprite(ISRStyleWaypoints.png 91 580 01 24 26 -24 -9) // building
 	sprite(ISRStyleWaypoints.png 122 580 01 24 26 0 -9)
 	sprite(ISRStyleWaypoints.png 91 610 01 13 26 0 0) // snow
@@ -477,6 +486,13 @@ spriteblock(
 	sprite(ISRStyleWaypoints.png 337 580 01 23 22 3 -9)
 	sprite(ISRStyleWaypoints.png 306 610 01 14 22 0 2) // snow (special!)
 	sprite(ISRStyleWaypoints.png 337 610 01 14 22 0 2)
+// ID ISRSW_9
+	sprite(ISRStyleWaypoints.png 5 640 01 29 36 -30 -15) // building
+	sprite(ISRStyleWaypoints.png 46 640 01 29 36 -4 -15)
+	sprite(ISRStyleWaypoints.png 5 675 01 23 34 0 0) // snow
+	sprite(ISRStyleWaypoints.png 46 675 01 23 34 2 0) (special!)
+// Empty
+	sprite(ISRStyleWaypoints.png 5 640 01 1 1 0 0) // empty
     )
 )
 
@@ -540,17 +556,63 @@ definestation(ISRSW_6, "Office",
 	exclude_lengths(8)
 )
 
-copylayout(ISRSW_4, ISRSW_6)
+layout(ISRSW_6,
+    tile(
+	ground(1012, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	compcol(8, xyz(0, 0, 0), dxdydz(16, 6, 15), aslflags({SKIP, OFFSET_SPRITE}), registers({7, 9})) // building
+	regular(10, xyoff(0, 0), aslflags({SKIP, OFFSET_SPRITE}), registers({5, 9})) // snow
+	
+	compcol(24, xyz(0, 10, 0), dxdydz(16, 6, 15), aslflags(SKIP), registers(8)) // empty
+    )
+    tile(
+	ground(1011, aslflags(OFFSET_SPRITE), registers(4)) // 1012 temp | 1038 snow
+	compcol(9, xyz(0, 0, 0), dxdydz(6, 16, 15), aslflags({SKIP, OFFSET_SPRITE}), registers({7, 9})) // building
+	regular(11, xyoff(0, 0), aslflags({SKIP, OFFSET_SPRITE}), registers({5, 9})) // snow
+	
+	compcol(24, xyz(10, 0, 0), dxdydz(6, 16, 15), aslflags(SKIP), registers(8)) // empty
+    )
+)
 
-def(5) setregisters(6, 8, ref(RESOLVE))
+def(1) spriteset(little(0))
 
-def(10) callback(
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+// available for following IDs
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(7) setregisters(7, {1, 0, 12}, ref(4))
+def(8) setregisters(7, {0, 1}, ref(4))
+
+// check which of the 2 tiles 
+def(9) plt_numrev(
+	self(
+		ref(7) if(0)
+		ref(8) else
+	)
+)
+
+def(10) setregisters(7, {1, 0, 0}, ref(4))
+
+// check if the waypoint is exactly 2 tiles wide
+def(11) plt_total(
+	self(
+		ref(9) if(2)
+		ref(10) else
+	)
+)
+
+def(12) callback(
 	cbr(0) if(CB_LAYOUT)
-	ref(5) else
+	ref(11) else
 )
 
 makestation(ISRSW_6,
-	default(ref(10))
+	default(ref(12))
 )
 
 
@@ -602,68 +664,6 @@ def(10) callback(
 makestation(ISRSW_8,
 	default(ref(10))
 )
-
-
-//-------------------------------------------------
-// ISRSW_9: Shipping office
-//-------------------------------------------------
-
-// definestation(ISRSW_9, "Shipping office",
-//     class("WAYP")
-//     callbacks(CB_LAYOUT)
-//     exclude_widths(8)
-//     exclude_lengths(8)
-// )
-//
-//layout(ISRSW_9,
-//
-//	tile(_nosnow,
-//		ground(1012)
-//		compcol(2, xyz(0, 0, 0), dxdydz(16, 6, 20))
-//	)
-//	tile(
-//		ground(1011)
-//		compcol(3, xyz(0, 0, 0), dxdydz(6, 16, 20))
-//)
-//
-// //snow
-// tile(_snow,
-// ground(1038)
-// compcol(2, xyz(0, 0, 0), dxdydz(16, 6, 20))
-// compcol(0,xyz(0, 0, 0), dxdydz(16, 6, 20)) //snow
-// )
-// tile(
-// ground(1037)
-// compcol(3, xyz(0, 0, 0), dxdydz(6, 16, 20))
-// compcol(1, xyz(0, 0, 0), dxdydz(6, 16, 20)) //snow
-// )
-// )
-//
-// spriteblock(
-// set(
-// sprite(ISRStyleWaypoints.png 5 240 01 23 34 -24 -15)
-// sprite(ISRStyleWaypoints.png 46 240 01 23 34 -8 -15)
-// sprite(ISRStyleWaypoints.png 5 265 01 29 36 -24 -15)
-// sprite(ISRStyleWaypoints.png 46 265 01 29 36 -10 -15)
-// )
-// )
-//
-// def(1) spriteset(little(0))
-//
-// // check for snow
-// def(9) tinfo_terrain(
-// reftile(_snow) if(SNOW) // snow
-// reftile(_nosnow) else     // no snow
-// )
-//
-// def(10) callback(
-// ref(9) if(CB_LAYOUT) // tile layout
-// ref(1) else	     // graphics chain
-// )
-//
-// makestation(ISRSW_9,
-// default(ref(10))
-// )
 
 
 //-------------------------------------------------
@@ -744,6 +744,326 @@ def(10) callback(
 )
 
 makestation(ISRSW_11,
+	default(ref(10))
+)
+
+//-------------------------------------------------
+// ISRSW_16: Mud transition front
+//-------------------------------------------------
+
+definestation(ISRSW_16, "Mud transition",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_0, ISRSW_16) // same layout as above
+
+spriteblock(
+    set(
+	sprite(ISRStyleWaypoints.png 5 790 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 74 790 01 31 64 -31 0)
+    )
+)
+
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
+)
+
+makestation(ISRSW_16,
+	default(ref(10))
+)
+
+//-------------------------------------------------
+// ISRSW_17: Mud transition back
+//-------------------------------------------------
+
+definestation(ISRSW_17, "Mud transition",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_0, ISRSW_17) // same layout as above
+
+spriteblock(
+    set(
+	sprite(ISRStyleWaypoints.png 175 790 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 244 790 01 31 64 -31 0)
+    )
+)
+
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
+)
+
+makestation(ISRSW_17,
+	default(ref(10))
+)
+
+//-------------------------------------------------
+// ISRSW_18: Asphalt transition front
+//-------------------------------------------------
+
+definestation(ISRSW_18, "Asphalt transition",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_0, ISRSW_18) // same layout as above
+
+spriteblock(
+    set(
+	sprite(ISRStyleWaypoints.png 5 830 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 74 830 01 31 64 -31 0)
+    )
+)
+
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
+)
+
+makestation(ISRSW_18,
+	default(ref(10))
+)
+
+//-------------------------------------------------
+// ISRSW_19: Asphalt transition back
+//-------------------------------------------------
+
+definestation(ISRSW_19, "Mud transition",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_0, ISRSW_19) // same layout as above
+
+spriteblock(
+    set(
+	sprite(ISRStyleWaypoints.png 175 830 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 244 830 01 31 64 -31 0)
+    )
+)
+
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
+)
+
+makestation(ISRSW_19,
+	default(ref(10))
+)
+
+//-------------------------------------------------
+// ISRSW_20: Dirty asphalt transition front
+//-------------------------------------------------
+
+definestation(ISRSW_20, "Dirty asphalt transition",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_0, ISRSW_20) // same layout as above
+
+spriteblock(
+    set(
+	sprite(ISRStyleWaypoints.png 5 870 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 74 870 01 31 64 -31 0)
+    )
+)
+
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
+)
+
+makestation(ISRSW_20,
+	default(ref(10))
+)
+
+//-------------------------------------------------
+// ISRSW_21: Dirty asphalt transition back
+//-------------------------------------------------
+
+definestation(ISRSW_21, "Dirty asphalt transition",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_0, ISRSW_21) // same layout as above
+
+spriteblock(
+    set(
+	sprite(ISRStyleWaypoints.png 175 870 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 244 870 01 31 64 -31 0)
+    )
+)
+
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
+)
+
+makestation(ISRSW_21,
+	default(ref(10))
+)
+
+//-------------------------------------------------
+// ISRSW_22: Cobble transition front
+//-------------------------------------------------
+
+definestation(ISRSW_22, "Cobble transition",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_0, ISRSW_22) // same layout as above
+
+spriteblock(
+    set(
+	sprite(ISRStyleWaypoints.png 5 910 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 74 910 01 31 64 -31 0)
+    )
+)
+
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
+)
+
+makestation(ISRSW_22,
+	default(ref(10))
+)
+
+//-------------------------------------------------
+// ISRSW_23: Cobble transition back
+//-------------------------------------------------
+
+definestation(ISRSW_23, "Cobble transition",
+	class("WAYP")
+	callbacks(CB_LAYOUT)
+	exclude_widths(8)
+	exclude_lengths(8)
+)
+
+copylayout(ISRSW_0, ISRSW_23) // same layout as above
+
+spriteblock(
+    set(
+	sprite(ISRStyleWaypoints.png 175 910 01 31 64 -31 0)
+	sprite(ISRStyleWaypoints.png 244 910 01 31 64 -31 0)
+    )
+)
+
+def(1) spriteset(little(0))
+
+// set track/roofs according to terrain
+def(2) setregisters(4, {26, 1}, ref(1)) // snow
+def(3) setregisters(4, {0, 0}, ref(1)) // no snow
+
+def(4) tinfo_terrain(
+	ref(2) if(SNOW)
+	ref(3) else
+)
+
+def(10) callback(
+	cbr(0) if(CB_LAYOUT)
+	ref(4) else
+)
+
+makestation(ISRSW_23,
 	default(ref(10))
 )
 
