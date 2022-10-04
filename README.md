@@ -4,13 +4,14 @@
 2 License
 3 Credits
   3.1 Original Industrial Stations Renewal (ISR) credits
-  3.2 Acknowledgements
+  3.2 Original CHIPS credits
+  3.3 Acknowledgements
 
 
 1 About
 =======
 
-A set of waypoints made with ISR graphics. 
+A set of waypoints made with ISR (and CHIPS) graphics. 
 
 
 2 License
@@ -38,6 +39,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Coded by DemianWSE
 
+Optimized by Michael Blunk
+
 3.1 Original Industrial Stations Renewal (ISR) credits
 ------------------------------------------------------
 
@@ -59,7 +62,13 @@ Coded by:
     mart3p
     planetmaker (action 14)
 
-3.2 Acknowledgements
+3.2 Original CHIPS credits
+---------------------------
+
+CHIPS by andythenorth and yexo
+
+3.3 Acknowledgements
 --------------------
 
-Huge thanks to michael blunck, whose help with m4nfo made this NewGRF possible.
+Huge thanks to Michael Blunck, whose help with m4nfo made this NewGRF possible.
+
